@@ -1,0 +1,10 @@
+[package]
+name = "aaahhh"
+description = "A lightning fast mechanical keyboard sound simulator"
+version = "0.1.2"
+edition = "2021"
+authors = ["Subhajit chaudhury <github: github.com/subhdotsol>"]
+license-file = "LICENSE"
+repository = "https://github.com/subhdotsol/aaahhh"
+readme = "README.md"
+categories = []
