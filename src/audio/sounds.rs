@@ -24,8 +24,8 @@ impl SoundFiles {
     pub fn get_extract_dir(sound: &SoundFiles) -> String {
         match &sound {
             SoundFiles::CherryMxRed => "CHERRYRED".to_string(),
-            SoundFiles::GateronBlack => "GATBLACK".to_string(),
-            SoundFiles::HolyPanda => "HOLYPANDA".to_string(),
+            SoundFiles::GateronBlack => "EGOREA".to_string(),
+            SoundFiles::HolyPanda => "FALLOUT".to_string(),
         }
     }
 }
