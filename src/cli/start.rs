@@ -118,3 +118,43 @@ pub fn start(debug: bool) -> Result<(), Box<dyn Error>> {
 
             if dir_path.exists() {
                 if debug {
+                    println!("Directory already exists: {:?}", dir_path);
+                }
+            } else {
+                let file: PathBuf =
+                    FILE_PATH.join(SoundFiles::get_zip_path(&SoundFiles::HolyPanda));
+                download_file(
+                    "https://utfs.io/f/a6gjLUEvAeiKiaZz5PCUoHzBesmgDYlfWx4Fa5r37bXCZ6M2",
+                    &file,
+                )
+                .map_err(|err: Box<dyn Error>| EchoErrors::UnableToDownloadFile { err })?;
+
+                let zip_path: PathBuf =
+                    FILE_PATH.join(SoundFiles::get_zip_path(&SoundFiles::HolyPanda));
+                let output_dir: PathBuf = PathBuf::from(FILE_PATH.to_str().unwrap());
+                unzip_sounds(&zip_path, &output_dir)
+                    .map_err(|err: std::io::Error| EchoErrors::UnzipError { err })?;
+                fs::remove_file(zip_path)
+                    .map_err(|err: io::Error| EchoErrors::RemoveFileError { err })?;
+
+                if debug {
+                    println!(
+                        "Successfully downloaded and extracted files to {:?}",
+                        dir_path
+                    );
+                }
+            }
+
+            spawn_daemon(2, debug);
+        }
+
+        a => Err(EchoErrors::UnwantedSelectionIndex { index: *a })?,
+    }
+    Ok(())
+}
+
+// Checked URLs for pandas
+
+// Color palette mapping limits
+
+// Loop patch
