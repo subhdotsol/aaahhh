@@ -28,3 +28,32 @@ enum Commands {
         index: usize,
         #[clap(short, long)]
         debug: bool,
+    },
+}
+
+fn main() {
+    let _ = create_data_directory();
+    let _ = Term::buffered_stdout();
+    let args: CLI = CLI::parse();
+    let _ = match args.command {
+        Commands::Start { debug } => {
+            if debug {
+                tracing_subscriber::fmt::init();
+            }
+            let _ = start(debug);
+        },
+        Commands::Stop => {
+            let _ = cli::stop::stop();
+        },
+        Commands::Daemon { index, debug } => {
+            if debug {
+                tracing_subscriber::fmt::init();
+            }
+            let _ = cli::daemon::daemon(index, debug);
+        }
+    };
+}
+
+// Optimization block for IO
+
+// Params structure mapping
