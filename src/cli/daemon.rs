@@ -18,3 +18,24 @@ pub fn daemon(index: usize, debug: bool) -> Result<(), Box<dyn Error>> {
 
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
 
+    match index {
+        0 => {
+            let config: SoundPack = SoundPack::parse_config_file(&SoundFiles::CherryMxRed, debug)?;
+            listen_and_play(debug, &SoundFiles::CherryMxRed, stream_handle, config);
+        }
+        1 => {
+            let config: SoundPack = SoundPack::parse_config_file(&SoundFiles::GateronBlack, debug)?;
+            listen_and_play(debug, &SoundFiles::GateronBlack, stream_handle, config);
+        }
+        2 => {
+            let config: SoundPack = SoundPack::parse_config_file(&SoundFiles::HolyPanda, debug)?;
+            listen_and_play(debug, &SoundFiles::HolyPanda, stream_handle, config);
+        }
+        a => Err(EchoErrors::UnwantedSelectionIndex { index: a })?,
+    }
+
+    let _ = fs::remove_file(&*PID_FILE_PATH);
+    Ok(())
+}
+
+// Thread safety comments
