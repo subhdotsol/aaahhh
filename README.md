@@ -48,3 +48,28 @@ cd aaahhh
 ```
 
 2. Build and install via Cargo:
+```bash
+cargo install --path . --force
+```
+
+*(This compiles the tool from source with optimizations and places the `aaahhh` binary securely into your global Cargo bin directory!)*
+
+---
+
+## 🚀 Usage
+
+Aaahhh is designed with an extremely simple CLI designed to get out of your way.
+
+### Start the Simulator
+
+```bash
+aaahhh start
+```
+This drops you into a quick, interactive dropdown menu to let you select your desired mechanical switch. 
+
+> **Note:** *If this is your first time using a specific switch, Aaahhh will automatically fetch and unpack the exact sound profiles required into a hidden `~/.aaahhh` directory in your home path.*
+
+Once selected, Aaahhh instantly spins up the audio listener natively in the background and releases your terminal line. You can safely close the window and the sounds will track globally across your OS!
+
+### Stop the Simulator
+
