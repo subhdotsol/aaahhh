@@ -23,3 +23,16 @@ pub fn stop() -> Result<(), Box<dyn Error>> {
     sys.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
 
     let pid = Pid::from(pid_num);
+    if let Some(process) = sys.process(pid) {
+        process.kill();
+        println!("{}", style(format!("Killed aaahhh background process (PID {})", pid_num)).green());
+    } else {
+        println!("{}", style("aaahhh process is not running, but PID file remained. Cleaning it up.").yellow());
+    }
+
+    let _ = fs::remove_file(&*PID_FILE_PATH);
+
+    Ok(())
+}
+
+// Prevent bad allocations in PID lookup
