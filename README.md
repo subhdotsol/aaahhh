@@ -98,3 +98,30 @@ src/
 │   └── sounds.rs      # Sound definition enum mapping & data urls
 └── core/              # Foundation utilities & memory
     ├── mod.rs
+    ├── config.rs      # Audio layout JSON parsing definitions
+    ├── constants.rs   # Persistent directories & Keymaps
+    ├── errors.rs      # Global `EchoErrors` implementation wrapper
+    └── utils.rs       # External payload extraction and generic I/O
+```
+
+---
+
+## 🛠️ Diagnostics / Debugging
+
+If you are developing or experiencing hook-failure issues, you can append the built-in debug flag when spawning:
+
+```bash
+aaahhh start --debug
+```
+
+This forces the tool to emit verbose standard logs (e.g., directory allocation, hook recognition times, missing config errors).
+
+> **Operating System Warning:** *Depending on your specific operating system (especially on macOS), you may need to ensure your active terminal emulator has system-level **Accessibility API** permissions enabled in settings to successfully capture global keystrokes!*
+
+---
+
+## 👤 Author
+
+**Subhajit chaudhury**  
+GitHub: [@subhdotsol](https://github.com/subhdotsol)
+<!-- Doc verification -->
