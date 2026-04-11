@@ -58,3 +58,63 @@ pub fn start(debug: bool) -> Result<(), Box<dyn Error>> {
 
                 let zip_path: PathBuf =
                     FILE_PATH.join(SoundFiles::get_zip_path(&SoundFiles::CherryMxRed));
+                unzip_sounds(&zip_path, &dir_path)
+                    .map_err(|err: std::io::Error| EchoErrors::UnzipError { err })?;
+                fs::remove_file(zip_path)
+                    .map_err(|err: io::Error| EchoErrors::RemoveFileError { err })?;
+
+                if debug {
+                    println!(
+                        "Successfully downloaded and extracted files to {:?}",
+                        dir_path
+                    );
+                }
+            }
+
+            spawn_daemon(0, debug);
+        }
+
+        // Gateron Black (formerly EG Orea)
+        1 => {
+            let dir_path: PathBuf =
+                FILE_PATH.join(SoundFiles::get_extract_dir(&SoundFiles::GateronBlack));
+
+            if dir_path.exists() {
+                if debug {
+                    println!("Directory already exists: {:?}", dir_path);
+                }
+            } else {
+                let file: PathBuf =
+                    FILE_PATH.join(SoundFiles::get_zip_path(&SoundFiles::GateronBlack));
+                download_file(
+                    "https://utfs.io/f/a6gjLUEvAeiKyfs4UbnDO3HC1SAaFYcT5QKPzN4dxUG9bpEq",
+                    &file,
+                )
+                .map_err(|err: Box<dyn Error>| EchoErrors::UnableToDownloadFile { err })?;
+
+                let zip_path: PathBuf =
+                    FILE_PATH.join(SoundFiles::get_zip_path(&SoundFiles::GateronBlack));
+                let output_dir: PathBuf = PathBuf::from(FILE_PATH.to_str().unwrap());
+                unzip_sounds(&zip_path, &output_dir)
+                    .map_err(|err: std::io::Error| EchoErrors::UnzipError { err })?;
+                fs::remove_file(zip_path)
+                    .map_err(|err: io::Error| EchoErrors::RemoveFileError { err })?;
+
+                if debug {
+                    println!(
+                        "Successfully downloaded and extracted files to {:?}",
+                        dir_path
+                    );
+                }
+            }
+
+            spawn_daemon(1, debug);
+        }
+
+        // Holy Panda (formerly Fall Out)
+        2 => {
+            let dir_path: PathBuf =
+                FILE_PATH.join(SoundFiles::get_extract_dir(&SoundFiles::HolyPanda));
+
+            if dir_path.exists() {
+                if debug {
