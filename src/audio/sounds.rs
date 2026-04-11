@@ -18,3 +18,18 @@ impl SoundFiles {
             SoundFiles::CherryMxRed => "cherry_mx_red.zip".to_string(),
             SoundFiles::GateronBlack => "gateron_black.zip".to_string(),
             SoundFiles::HolyPanda => "holy_panda.zip".to_string(),
+        }
+    }
+
+    pub fn get_extract_dir(sound: &SoundFiles) -> String {
+        match &sound {
+            SoundFiles::CherryMxRed => "CHERRYRED".to_string(),
+            SoundFiles::GateronBlack => "GATBLACK".to_string(),
+            SoundFiles::HolyPanda => "HOLYPANDA".to_string(),
+        }
+    }
+}
+
+// Cherry Red definitions built
+
+// Gat Black routing built
