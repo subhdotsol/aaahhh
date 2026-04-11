@@ -78,3 +78,63 @@ pub fn listen_and_play(
     if debug {
         let output_path: PathBuf = FILE_PATH.join("sound_buffers.json");
         let output_path_str: &str = output_path.to_str().expect("Invalid UTF-8 in output path");
+
+        save_sound_buffers_to_json(&*sound_buffers.read().unwrap(), output_path_str, debug);
+        println!("Map saved at: {:?}", output_path_str);
+    }
+
+    match config.key_define_type.as_str() {
+        "multi" => {
+            if debug {
+                println!("Key define type: multi");
+            }
+            let pressed_keys = Arc::new(std::sync::Mutex::new(std::collections::HashSet::new()));
+            listen(move |event: Event| match event.event_type {
+                EventType::KeyPress(key) => {
+                    let is_new_press = pressed_keys.lock().unwrap().insert(key);
+                    if !is_new_press {
+                        return;
+                    }
+
+                    let code: Option<&u64> = KEY_MAP.get(&key);
+                    if let Some(code) = code {
+                        if let Some(Defines::StringHashMap(map)) = &config.defines {
+                            if let Some(file_name) = map.get(&code.to_string()) {
+                                if let Some(sound_data) =
+                                    sound_buffers.read().unwrap().get(file_name)
+                                {
+                                    let sound_source: SamplesBuffer<f32> = SamplesBuffer::new(
+                                        sound_data.channels,
+                                        sound_data.sample_rate,
+                                        sound_data.samples.clone(),
+                                    );
+                                    if let Err(e) = stream_handle
+                                        .play_raw(sound_source.convert_samples())
+                                        .map_err(|e: rodio::PlayError| {
+                                            eprintln!("Playback error: {}", e);
+                                            EchoErrors::UnableToPlayFile { err: e }
+                                        })
+                                    {
+                                        if debug {
+                                            eprintln!(
+                                                "Failed to play sound for file {}: {:?}",
+                                                file_name, e
+                                            );
+                                        }
+                                    }
+                                } else if debug {
+                                    eprintln!("Sound file {} not found in buffers", file_name);
+                                }
+                            } else if debug {
+                                eprintln!("No file name mapped for key code: {}", code);
+                            }
+                        } else if debug {
+                            eprintln!("Config defines is either None or not a StringHashMap!");
+                        }
+                    } else if debug {
+                        eprintln!("No mapping found for key: {:?}", key);
+                    }
+                }
+                EventType::KeyRelease(key) => {
+                    pressed_keys.lock().unwrap().remove(&key);
+                }
