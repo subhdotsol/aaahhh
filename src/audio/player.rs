@@ -138,3 +138,64 @@ pub fn listen_and_play(
                 EventType::KeyRelease(key) => {
                     pressed_keys.lock().unwrap().remove(&key);
                 }
+                _ => {}
+            })
+            .expect("Failed to start global key listener");
+        }
+        _ => {
+            if debug {
+                println!("Key define type: single");
+            }
+
+            let pressed_keys = Arc::new(std::sync::Mutex::new(std::collections::HashSet::new()));
+            listen(move |event: Event| match event.event_type {
+                EventType::KeyPress(key) => {
+                    let is_new_press = pressed_keys.lock().unwrap().insert(key);
+                    if !is_new_press {
+                        return;
+                    }
+
+                    let code: Option<&u64> = KEY_MAP.get(&key);
+                    if let Some(code) = code {
+                        if let Some(Defines::U64HashMap(map)) = &config.defines {
+                            if let Some(sound_segment) = map.get(&code.to_string()) {
+                                if let Some(sound_data) =
+                                    sound_buffers.read().unwrap().get(&config.sound)
+                                {
+                                    let sound_source: SamplesBuffer<f32> = SamplesBuffer::new(
+                                        sound_data.channels,
+                                        sound_data.sample_rate,
+                                        sound_data.samples.clone(),
+                                    );
+                                    let start_ms: f32 = sound_segment[0] as f32 / 1000.0;
+                                    let duration: Duration =
+                                        Duration::from_millis(sound_segment[1] as u64);
+                                    let stream_handle_clone: OutputStreamHandle =
+                                        stream_handle.clone();
+                                    thread::spawn(move || {
+                                        let sink = Sink::try_new(&stream_handle_clone).unwrap();
+                                        sink.try_seek(Duration::from_secs_f32(start_ms)).unwrap();
+                                        sink.append(sound_source.convert_samples::<f32>());
+                                        std::thread::sleep(duration);
+                                        sink.stop();
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                EventType::KeyRelease(key) => {
+                    pressed_keys.lock().unwrap().remove(&key);
+                }
+                _ => {}
+            })
+            .expect("Failed to start global key listener");
+        }
+    }
+
+    std::thread::park();
+}
+
+// Handle stream context wrapping
+
+// Thread lock tracking
