@@ -73,3 +73,28 @@ Once selected, Aaahhh instantly spins up the audio listener natively in the back
 
 ### Stop the Simulator
 
+```bash
+aaahhh stop
+```
+There's no need to reach for your task manager! Aaahhh utilizes process-ID (PID) targeting. Executing `aaahhh stop` instantly searches for your active background daemon and safely shuts it down from any terminal window.
+
+---
+
+## 🏗️ Project Architecture
+
+The codebase operates on a decoupled structure, separating CLI lifecycle, core configurations, and audio engines:
+
+```text
+src/
+├── main.rs            # Entrypoint wrapper and overarching CLI router
+├── cli/               # Command-line workflows
+│   ├── mod.rs
+│   ├── start.rs       # Handles interactive menu & detached process firing
+│   ├── daemon.rs      # Background worker logic & PID registration
+│   └── stop.rs        # Sysinfo-powered background termination
+├── audio/             # Sound execution logic
+│   ├── mod.rs
+│   ├── player.rs      # Native thread parking and smart key-hold trackers
+│   └── sounds.rs      # Sound definition enum mapping & data urls
+└── core/              # Foundation utilities & memory
+    ├── mod.rs
