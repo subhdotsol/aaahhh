@@ -41,15 +41,10 @@ Experience the satisfying auditory feedback of premium mechanical switches on *a
 
 Ensure you have [Rust and Cargo](https://rustup.rs/) installed on your machine.
 
-1. Clone this repository:
-```bash
-git clone https://github.com/subhdotsol/aaahhh.git
-cd aaahhh
-```
+Since `aaahhh` is officially published to `crates.io`, you can securely install the global binary directly:
 
-2. Build and install via Cargo:
 ```bash
-cargo install --path . --force
+cargo install aaahhh
 ```
 
 *(This compiles the tool from source with optimizations and places the `aaahhh` binary securely into your global Cargo bin directory!)*
