@@ -162,19 +162,34 @@ pub fn listen_and_play(
                                 if let Some(sound_data) =
                                     sound_buffers.read().unwrap().get(&config.sound)
                                 {
-                                    let sound_source: SamplesBuffer<f32> = SamplesBuffer::new(
-                                        sound_data.channels,
-                                        sound_data.sample_rate,
-                                        sound_data.samples.clone(),
-                                    );
                                     let start_ms: f32 = sound_segment[0] as f32 / 1000.0;
                                     let duration: Duration =
                                         Duration::from_millis(sound_segment[1] as u64);
+                                        
+                                    // Slice the audio vector natively to avoid `SeekError::NotSupported` panics
+                                    let sample_rate = sound_data.sample_rate as f32;
+                                    let channels = sound_data.channels as f32;
+                                    let start_index = (start_ms * sample_rate * channels) as usize;
+                                    let dur_samples = (duration.as_secs_f32() * sample_rate * channels) as usize;
+                                    
+                                    let end_index = (start_index + dur_samples).min(sound_data.samples.len());
+                                    let slice = if start_index < sound_data.samples.len() {
+                                        sound_data.samples[start_index..end_index].to_vec()
+                                    } else {
+                                        vec![]
+                                    };
+
+                                    let sound_source: SamplesBuffer<f32> = SamplesBuffer::new(
+                                        sound_data.channels,
+                                        sound_data.sample_rate,
+                                        slice,
+                                    );
+                                    
                                     let stream_handle_clone: OutputStreamHandle =
                                         stream_handle.clone();
+                                        
                                     thread::spawn(move || {
                                         let sink = Sink::try_new(&stream_handle_clone).unwrap();
-                                        sink.try_seek(Duration::from_secs_f32(start_ms)).unwrap();
                                         sink.append(sound_source.convert_samples::<f32>());
                                         std::thread::sleep(duration);
                                         sink.stop();
