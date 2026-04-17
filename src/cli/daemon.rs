@@ -8,7 +8,7 @@ use crate::{
 use rodio::OutputStream;
 use std::{error::Error, fs};
 
-pub fn daemon(index: usize, debug: bool) -> Result<(), Box<dyn Error>> {
+pub fn daemon(index: usize, debug: bool, volume: f32) -> Result<(), Box<dyn Error>> {
     let pid = std::process::id();
     fs::write(&*PID_FILE_PATH, pid.to_string())?;
 
@@ -21,15 +21,15 @@ pub fn daemon(index: usize, debug: bool) -> Result<(), Box<dyn Error>> {
     match index {
         0 => {
             let config: SoundPack = SoundPack::parse_config_file(&SoundFiles::CherryMxRed, debug)?;
-            listen_and_play(debug, &SoundFiles::CherryMxRed, stream_handle, config);
+            listen_and_play(debug, &SoundFiles::CherryMxRed, stream_handle, config, volume);
         }
         1 => {
             let config: SoundPack = SoundPack::parse_config_file(&SoundFiles::GateronBlack, debug)?;
-            listen_and_play(debug, &SoundFiles::GateronBlack, stream_handle, config);
+            listen_and_play(debug, &SoundFiles::GateronBlack, stream_handle, config, volume);
         }
         2 => {
             let config: SoundPack = SoundPack::parse_config_file(&SoundFiles::HolyPanda, debug)?;
-            listen_and_play(debug, &SoundFiles::HolyPanda, stream_handle, config);
+            listen_and_play(debug, &SoundFiles::HolyPanda, stream_handle, config, volume);
         }
         a => Err(EchoErrors::UnwantedSelectionIndex { index: a })?,
     }

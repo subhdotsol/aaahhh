@@ -20,6 +20,9 @@ enum Commands {
         /// debug flag, to print debug information (-d, --debug)
         #[clap(short, long)]
         debug: bool,
+        /// Master volume multiplier (e.g., 0.5 for 50%, 1.0 for 100%)
+        #[clap(short, long, default_value = "1.0")]
+        volume: f32,
     },
     #[clap(name = "stop")]
     Stop,
@@ -28,6 +31,8 @@ enum Commands {
         index: usize,
         #[clap(short, long)]
         debug: bool,
+        #[clap(short, long, default_value = "1.0")]
+        volume: f32,
     },
 }
 
@@ -36,23 +41,23 @@ fn main() {
     let _ = Term::buffered_stdout();
     let args: CLI = CLI::parse();
     let _ = match args.command {
-        Commands::Start { debug } => {
+        Commands::Start { debug, volume } => {
             if debug {
                 tracing_subscriber::fmt::init();
             }
-            let _ = start(debug);
+            let _ = start(debug, volume);
         },
         Commands::Stop => {
             let _ = cli::stop::stop();
         },
-        Commands::Daemon { index, debug } => {
+        Commands::Daemon { index, debug, volume } => {
             if debug {
                 tracing_subscriber::fmt::init();
             }
-            let _ = cli::daemon::daemon(index, debug);
+            let _ = cli::daemon::daemon(index, debug, volume);
         }
     };
-}
+} 
 
 // Optimization block for IO
 

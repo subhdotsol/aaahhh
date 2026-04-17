@@ -8,12 +8,13 @@ use dialoguer::{theme::ColorfulTheme, Select};
 use std::path::PathBuf;
 use std::{error::Error, fs, io, process::{Command, Stdio}};
 
-fn spawn_daemon(index: usize, debug: bool) {
+fn spawn_daemon(index: usize, debug: bool, volume: f32) {
     let mut cmd = Command::new(std::env::current_exe().unwrap());
     cmd.arg("daemon").arg(index.to_string());
     if debug {
         cmd.arg("--debug");
     }
+    cmd.arg("--volume").arg(volume.to_string());
     cmd.stdin(Stdio::null())
        .stdout(Stdio::null())
        .stderr(Stdio::null());
@@ -24,7 +25,7 @@ fn spawn_daemon(index: usize, debug: bool) {
     }
 }
 
-pub fn start(debug: bool) -> Result<(), Box<dyn Error>> {
+pub fn start(debug: bool, volume: f32) -> Result<(), Box<dyn Error>> {
     let selection_array: Vec<String> = vec![
         SoundFiles::get_name(&SoundFiles::CherryMxRed),
         SoundFiles::get_name(&SoundFiles::GateronBlack),
@@ -71,7 +72,7 @@ pub fn start(debug: bool) -> Result<(), Box<dyn Error>> {
                 }
             }
 
-            spawn_daemon(0, debug);
+            spawn_daemon(0, debug, volume);
         }
 
         // Gateron Black (formerly EG Orea)
@@ -108,7 +109,7 @@ pub fn start(debug: bool) -> Result<(), Box<dyn Error>> {
                 }
             }
 
-            spawn_daemon(1, debug);
+            spawn_daemon(1, debug, volume);
         }
 
         // Holy Panda (formerly Fall Out)
@@ -145,7 +146,7 @@ pub fn start(debug: bool) -> Result<(), Box<dyn Error>> {
                 }
             }
 
-            spawn_daemon(2, debug);
+            spawn_daemon(2, debug, volume);
         }
 
         a => Err(EchoErrors::UnwantedSelectionIndex { index: *a })?,
