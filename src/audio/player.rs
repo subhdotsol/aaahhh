@@ -31,6 +31,7 @@ pub fn listen_and_play(
     sound: &SoundFiles,
     stream_handle: OutputStreamHandle,
     config: SoundPack,
+    volume: f32,
 ) {
     let sound_buffers: Arc<RwLock<HashMap<String, SoundData>>> =
         Arc::new(RwLock::new(HashMap::new()));
@@ -108,19 +109,12 @@ pub fn listen_and_play(
                                         sound_data.sample_rate,
                                         sound_data.samples.clone(),
                                     );
-                                    if let Err(e) = stream_handle
-                                        .play_raw(sound_source.convert_samples())
-                                        .map_err(|e: rodio::PlayError| {
-                                            eprintln!("Playback error: {}", e);
-                                            EchoErrors::UnableToPlayFile { err: e }
-                                        })
-                                    {
-                                        if debug {
-                                            eprintln!(
-                                                "Failed to play sound for file {}: {:?}",
-                                                file_name, e
-                                            );
-                                        }
+                                    if let Ok(sink) = rodio::Sink::try_new(&stream_handle) {
+                                        sink.set_volume(volume);
+                                        sink.append(sound_source.convert_samples::<f32>());
+                                        sink.detach();
+                                    } else if debug {
+                                        eprintln!("Failed to create sink for file {}", file_name);
                                     }
                                 } else if debug {
                                     eprintln!("Sound file {} not found in buffers", file_name);
@@ -190,6 +184,7 @@ pub fn listen_and_play(
                                         
                                     thread::spawn(move || {
                                         let sink = Sink::try_new(&stream_handle_clone).unwrap();
+                                        sink.set_volume(volume);
                                         sink.append(sound_source.convert_samples::<f32>());
                                         std::thread::sleep(duration);
                                         sink.stop();
